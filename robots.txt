@@ -1,0 +1,3 @@
+# Diese Seite ist eine private Spielhilfe und gehoert nicht in Suchmaschinen.
+User-agent: *
+Disallow: /
