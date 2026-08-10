@@ -2105,6 +2105,8 @@ function datumText(t) {
 
 const KAFFEEKASSE = 'christianjmaass';
 
+const IMPRESSUM_MAIL = 'nixlosus' + '@' + 'gmx.de';
+
 function kaffeeLink() {
   return KAFFEEKASSE ? 'https://www.paypal.me/' + encodeURIComponent(KAFFEEKASSE) : '';
 }
@@ -2567,6 +2569,18 @@ function zeichneBuch() {
           '<span class="kaffee-txt">Buy me a coffee' +
           '<span class="unter">öffnet PayPal in einem neuen Fenster</span></span></button>';
     html += karte({ nr: nr(), titel: 'Die Kaffeekasse', ton: 'gold', inhalt: kk });
+
+    let imp = '<p class="klein" style="margin:0 0 10px">Angaben gemäß § 5 DDG — ' +
+              'nötig, weil auf dieser Seite um einen Beitrag gebeten wird.</p>';
+    imp += '<p class="klein" style="margin:0 0 10px;line-height:1.7">' +
+           'Christian Maaß<br>Wiesenstrasse 26<br>35428 Langgöns<br>Deutschland</p>';
+    imp += '<p class="klein" style="margin:0 0 10px">E-Mail: ' +
+           '<a href="mailto:' + IMPRESSUM_MAIL + '">' + IMPRESSUM_MAIL + '</a></p>';
+    imp += '<p class="klein" style="margin:0">Privates, nicht gewerbliches Angebot ohne ' +
+           'Gewinnerzielungsabsicht. HeXXen 1733 ist ein Produkt von Ulisses Spiele; ' +
+           'alle Rechte an Namen, Regeln und Illustrationen liegen beim Rechteinhaber. ' +
+           'Diese Spielhilfe steht in keiner Verbindung zum Verlag.</p>';
+    html += karte({ nr: nr(), titel: 'Impressum', inhalt: imp });
   }
 
   html += '<p class="klein mitte" style="padding:2px 0 6px">Jägerbuch · Zähler für den Spieltisch<br>' +
