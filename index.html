@@ -2438,7 +2438,7 @@ function zeichneRunde() {
   return html + schlussstueck();
 }
 
-const ROEMISCH = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
+const ROEMISCH = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV','XVI'];
 
 function zeichneBuch() {
   const c = charakter(), z = c ? zustand() : null;
@@ -2582,6 +2582,58 @@ function zeichneBuch() {
            'Diese Spielhilfe steht in keiner Verbindung zum Verlag.</p>';
     html += karte({ nr: nr(), titel: 'Impressum', inhalt: imp });
   }
+
+  let ds = '<p class="klein" style="margin:0 0 10px">Verantwortlich im Sinne der ' +
+           'Datenschutz-Grundverordnung ist die im Impressum genannte Person.</p>';
+  ds += '<p class="klein" style="margin:0 0 10px"><b>Was auf deinem Gerät bleibt.</b> ' +
+        'Alles, was du hier einträgst — Jäger, Marker, Wunden, Kasse, Notizen — wird ' +
+        'ausschließlich im Speicher deines eigenen Browsers abgelegt. Es wird nichts ' +
+        'übertragen, nichts ausgewertet und nichts an mich gesendet. Löschst du die ' +
+        'Browserdaten, sind auch diese Einträge fort.</p>';
+  ds += '<p class="klein" style="margin:0 0 10px"><b>Keine Cookies, keine Zählung.</b> ' +
+        'Diese Seite setzt keine Cookies, bindet keine Schriften oder Bilder von fremden ' +
+        'Servern ein und verwendet weder Analyse- noch Werbedienste.</p>';
+  ds += '<p class="klein" style="margin:0 0 10px"><b>Beim Aufrufen der Seite.</b> ' +
+        'Die Seite liegt bei GitHub Pages (GitHub Inc., 88 Colin P. Kelly Jr. Street, ' +
+        'San Francisco, CA 94107, USA). Wie bei jedem Aufruf einer Internetseite ' +
+        'verarbeitet der Anbieter dabei technische Zugriffsdaten, darunter deine ' +
+        'IP-Adresse. Darauf habe ich keinen Einfluss und ich erhalte diese Daten nicht. ' +
+        'Rechtsgrundlage ist das berechtigte Interesse an einer technisch ' +
+        'funktionierenden Bereitstellung (Art. 6 Abs. 1 lit. f DSGVO).</p>';
+  if (kaffeeLink()) {
+    ds += '<p class="klein" style="margin:0 0 10px"><b>Die Kaffeekasse.</b> ' +
+          'Erst wenn du den Knopf antippst, öffnet sich PayPal in einem neuen Fenster. ' +
+          'Ab dann gelten die Datenschutzhinweise von PayPal. Solange du nicht tippst, ' +
+          'besteht keine Verbindung dorthin.</p>';
+  }
+  ds += '<p class="klein" style="margin:0 0 10px"><b>Deine Rechte.</b> Du hast das Recht ' +
+        'auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, ' +
+        'Datenübertragbarkeit und Widerspruch sowie das Recht, dich bei einer ' +
+        'Datenschutz-Aufsichtsbehörde zu beschweren. Weil hier keine personenbezogenen ' +
+        'Daten bei mir anfallen, kann ich zu deinen Einträgen allerdings weder Auskunft ' +
+        'geben noch sie löschen — beides liegt allein in deinem Browser.</p>';
+  ds += '<p class="klein" style="margin:0">Stand: August 2026. Dies ist ein selbst ' +
+        'verfasster Text und keine Rechtsberatung.</p>';
+  html += karte({ nr: nr(), titel: 'Datenschutz', inhalt: ds });
+
+  let nb = '<p class="klein" style="margin:0 0 10px"><b>Was das hier ist.</b> ' +
+           'Das Jägerbuch ist eine private Spielhilfe, die ich für meine eigene Runde ' +
+           'gebaut habe und kostenlos weitergebe. Es besteht kein Anspruch darauf, dass ' +
+           'die Seite erreichbar bleibt, fehlerfrei läuft oder weiterentwickelt wird.</p>';
+  nb += '<p class="klein" style="margin:0 0 10px"><b>Nutzung auf eigene Verantwortung.</b> ' +
+        'Für Schäden, die aus der Nutzung entstehen, hafte ich nur bei Vorsatz und grober ' +
+        'Fahrlässigkeit sowie bei der Verletzung von Leben, Körper und Gesundheit.</p>';
+  nb += '<p class="klein" style="margin:0 0 10px"><b>Deine Einträge.</b> Alles liegt nur ' +
+        'in deinem Browser. Eine Sicherung gibt es nicht — wer seine Jäger behalten will, ' +
+        'legt selbst eine Kopie an. Für verlorene Einträge kann ich nicht einstehen.</p>';
+  nb += '<p class="klein" style="margin:0 0 10px"><b>Regeln und Rechte.</b> Angaben zu ' +
+        'Werten und Abläufen können Fehler enthalten; im Zweifel gilt immer das gedruckte ' +
+        'Regelwerk. HeXXen 1733 ist ein Produkt von Ulisses Spiele; alle Rechte an Namen, ' +
+        'Regeln und Illustrationen liegen beim Rechteinhaber. Diese Spielhilfe steht in ' +
+        'keiner Verbindung zum Verlag und ersetzt kein Regelwerk.</p>';
+  nb += '<p class="klein" style="margin:0"><b>Änderungen.</b> Diese Bedingungen können ' +
+        'angepasst werden; es gilt jeweils die hier abrufbare Fassung. Stand: August 2026.</p>';
+  html += karte({ nr: nr(), titel: 'Nutzungsbedingungen', inhalt: nb });
 
   html += '<p class="klein mitte" style="padding:2px 0 6px">Jägerbuch · Zähler für den Spieltisch<br>' +
           'HeXXen 1733 © Ulisses Spiele · private Spielhilfe</p>';
