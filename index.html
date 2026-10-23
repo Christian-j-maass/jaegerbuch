@@ -1023,6 +1023,7 @@ html[data-drucken] #druckbogen { display: block; }
       <div class="kopf-mitte">
         <div class="kopf-wappen" id="kopfWappen"></div>
         <div class="kopf-name" id="kopfName">Jägerbuch</div>
+        <button id="kopfJaegerWahl" type="button" style="margin:8px auto 0;padding:10px 16px;min-height:44px;border:1px solid #c9a227;border-radius:8px;background:#16301e;color:#f2d17a;font:inherit;cursor:pointer">Charakter wechseln ▾</button>
         <div class="kopf-unter" id="kopfUnter">wird geladen</div>
       </div>
       <button class="kopf-knopf" id="undoKnopf" aria-label="Rückgängig" title="Letzten Schritt zurücknehmen">
@@ -2170,7 +2171,7 @@ function zeichneKopf() {
 }
 
 function startCharakterwahl() {
-  let h = '<section aria-label="Charakter auswählen" style="margin-bottom:18px">';
+  let h = '<section id="startJaegerWahl" aria-label="Charakter auswählen" style="margin-bottom:18px">';
   h += '<h2 style="margin:0 0 10px">Wähle deinen Jäger</h2>';
   h += '<p class="klein" style="margin:0 0 12px">Tippe auf deinen Charakter, um seine Werte und Marker zu öffnen.</p>';
   h += '<div style="display:grid;gap:9px">';
@@ -3891,6 +3892,7 @@ document.addEventListener('click', ev => {
   if (b) { ev.stopPropagation(); begriffZeigen(b); return; }
   begriffSchliessen();
 
+  if (t.closest('#kopfJaegerWahl')) { seiteZeigen('marker'); document.querySelector('#startJaegerWahl')?.scrollIntoView({behavior:'smooth',block:'start'}); return; }
   if (t.closest('#undoKnopf')) { zurueck(); return; }
   if (t.closest('#modusKopf')) {
     modusSetzen(Buch.einstellungen.modus === 'dunkel' ? 'hell' : 'dunkel');
