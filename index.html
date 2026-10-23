@@ -2169,10 +2169,30 @@ function zeichneKopf() {
   if (!w.dataset.fertig) { w.innerHTML = '<i></i>' + orn('wappen') + '<i></i>'; w.dataset.fertig = '1'; }
 }
 
+function startCharakterwahl() {
+  let h = '<section aria-label="Charakter auswählen" style="margin-bottom:18px">';
+  h += '<h2 style="margin:0 0 10px">Wähle deinen Jäger</h2>';
+  h += '<p class="klein" style="margin:0 0 12px">Tippe auf deinen Charakter, um seine Werte und Marker zu öffnen.</p>';
+  h += '<div style="display:grid;gap:9px">';
+  Buch.charaktere.forEach(x => {
+    h += '<button class="wahl' + (x.id === Buch.aktiv ? ' gewaehlt' : '') +
+      '" data-jaeger="' + esc(x.id) + '" aria-pressed="' + (x.id === Buch.aktiv) + '">' +
+      '<span class="wahl-zeichen">' + (x.id === Buch.aktiv ? '●' : '○') + '</span>' +
+      '<span class="wahl-text"><span class="wahl-titel">' + esc(x.name) +
+      (x.beiname ? ' „' + esc(x.beiname) + '“' : '') + '</span>' +
+      '<span class="wahl-unter">Stufe ' + x.stufe + (x.rolle ? ' · ' + esc(x.rolle) : '') +
+      (x.id === Buch.aktiv ? ' · Aktiv' : '') + '</span></span></button>';
+  });
+  h += '</div><div class="knopf-reihe" style="margin-top:12px">' +
+    '<button class="knopf schmal" id="vorlageKnopf">Charaktervorlage wählen</button>' +
+    '<button class="knopf schmal" id="neuKnopf">Eigenen Jäger anlegen</button></div></section>';
+  return h;
+}
+
 function zeichneMarker() {
   const c = charakter(), z = zustand();
   const apM = apMax(c, z);
-  let html = '';
+  let html = startCharakterwahl();
 
   let inhalt = kartusche(z.ap, 'von ' + apM +
       (z.einfluss.laehmung ? ' · Lähmung nimmt ' + z.einfluss.laehmung : ''), 'ap');
@@ -2707,14 +2727,14 @@ function zeichnen() {
   zeichneKopf();
   const c = charakter();
   const seiten = {
-    marker: zeichneMarker, leben: zeichneLeben, handeln: zeichneHandeln,
+    marker: c ? zeichneMarker : startCharakterwahl, leben: zeichneLeben, handeln: zeichneHandeln,
     runde: zeichneRunde, buch: zeichneBuch
   };
   for (const [id, fn] of Object.entries(seiten)) {
     const el = $('#seite-' + id);
     el.classList.toggle('aktiv', id === AktiveSeite);
     if (id === AktiveSeite) {
-      el.innerHTML = (!c && id !== 'buch')
+      el.innerHTML = (!c && id !== 'buch' && id !== 'marker')
         ? karte({ inhalt: '<div class="leerhinweis">Noch kein Jäger gewählt.<br>Geh auf <b>Buch</b> und lade eine Vorlage.</div>' })
         : fn();
     }
@@ -4298,7 +4318,7 @@ function starten() {
 
   bogenschriftLaden();
 
-  titelblattZeigen();
+  /* Startseite direkt mit Charakterauswahl öffnen. */
 
   if (!speicherOk) {
     setTimeout(() => melden('Dieser Browser speichert hier nichts. Sichere als Datei!'), 700);
