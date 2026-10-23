@@ -85,3 +85,14 @@ Zusätzlich behoben:
 - GitHub Actions führt die 18 Node-Tests bei Push und Pull Request aus, ohne weitere Paketinstallation.
 
 **Grenzen:** Die App bleibt eine Spielhilfe mit manuell geführten Würfeln und Markern, keine vollständige Regelautomatisierung. Janus-Boni, bedingte Espritwirkungen und verbrauchte Geschosse/Gifte sind entsprechend den Hinweisen am Spieltisch zu verwalten. Mobile Prüfung ist eine Chromium-Emulation, kein Test auf einem physischen iPhone/Safari. Malis unabhängiger Originalbogen-Abgleich und Caprices Aufstiege bleiben offen.
+
+
+## Tatsächliches Prüfergebnis der Veröffentlichung
+
+- Release-Commit: [`fcc34ae54545df0ae620e24b31f589f52b19810e`](https://github.com/Christian-j-maass/jaegerbuch/commit/fcc34ae54545df0ae620e24b31f589f52b19810e).
+- Lokal: 18/18 Node-Regressionstests erfolgreich; alle zwölf Kombinationen im mobilen Chromium-Browser erfolgreich.
+- [GitHub-Hauptbranch-CI](https://github.com/Christian-j-maass/jaegerbuch/actions/runs/40018329989): erfolgreich.
+- [GitHub-Pages-Build und Deployment](https://github.com/Christian-j-maass/jaegerbuch/actions/runs/40018329218): erfolgreich.
+- [Ausgelieferte Anwendung](https://christian-j-maass.github.io/jaegerbuch/): HTTP 200. Der Git-Blob-Hash des heruntergeladenen HTML ist `ca95e1f6170f1628294004ced0a672f5472eee79` und stimmt exakt mit der lokal getesteten und veröffentlichten `index.html` überein.
+- Gegen diese tatsächlich ausgelieferte Fassung erneut alle zwölf Kombinationen im Viewport 390 × 844 durch die Oberfläche geprüft: erfolgreich. Alle fünf Reiter, Speichern/Wechsel/Neuladen, schnelle Merkzetteleingabe, Zurück/Abbruch und Caprices Warnhinweis erfolgreich; keine JavaScript-Seitenfehler und kein horizontales Überlaufen.
+- Die Prüfung verwendete eine neue, isolierte Browsersitzung mit synthetischen Spielständen. Bestehende persönliche Browserdaten wurden nicht angefasst.
