@@ -166,6 +166,15 @@ button { cursor: pointer; border: none; background: none; }
   box-shadow: 0 6px 16px rgba(0,0,0,.22);
 }
 .kopf-reihe { display: flex; align-items: center; gap: 8px; }
+/* Alle vier Bedienelemente auf einer gemeinsamen horizontalen Achse. */
+.kopf-identitaet { text-align:center; padding:2px 0 10px; }
+.kopf-identitaet .kopf-wappen { margin-left:auto; margin-right:auto; }
+.kopf-werkzeugleiste { display:grid; grid-template-columns:46px minmax(0,1fr) 46px 46px; align-items:center; gap:6px; }
+.kopf-werkzeugleiste .kopf-knopf { width:46px; height:46px; display:grid; place-items:center; box-sizing:border-box; }
+.kopf-werkzeugleiste #heimKnopf { text-decoration:none; color:var(--band-gold); }
+.kopf-auswahl { width:100%; min-width:0; height:46px; padding:0 4px; border:1px solid #c9a227; border-radius:6px; background:#16301e; color:#f2d17a; font:inherit; font-size:clamp(12px,3.2vw,17px); white-space:nowrap; cursor:pointer; }
+@media (max-width:360px) { .kopf-werkzeugleiste {grid-template-columns:44px minmax(0,1fr) 44px 44px;gap:4px;} .kopf-werkzeugleiste .kopf-knopf{width:44px;height:46px;} .kopf-auswahl{font-size:12px;} }
+
 .kopf-knopf {
   flex: 0 0 auto; width: 46px; height: 46px;
   display: grid; place-items: center;
@@ -1014,30 +1023,22 @@ html[data-drucken] #druckbogen { display: block; }
 <div class="app">
 
   <header class="kopfleiste">
-    <div class="kopf-reihe">
+    <div class="kopf-identitaet">
+      <div class="kopf-wappen" id="kopfWappen"></div>
+      <div class="kopf-name" id="kopfName">Jägerbuch</div>
+      <div class="kopf-unter" id="kopfUnter">wird geladen</div>
+    </div>
+    <div class="kopf-reihe kopf-werkzeugleiste">
       <button class="kopf-knopf" id="modusKopf" aria-label="Darstellung umschalten" title="Pergament oder Kerzenschein">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20.5 14.6A8.6 8.6 0 0 1 9.4 3.5a8.6 8.6 0 1 0 11.1 11.1z"/>
-        </svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.6A8.6 8.6 0 0 1 9.4 3.5a8.6 8.6 0 1 0 11.1 11.1z"/></svg>
       </button>
-      <div class="kopf-mitte">
-        <div class="kopf-wappen" id="kopfWappen"></div>
-        <div class="kopf-name" id="kopfName">Jägerbuch</div>
-        <button id="kopfJaegerWahl" type="button" style="margin:8px auto 0;padding:10px 16px;min-height:44px;border:1px solid #c9a227;border-radius:8px;background:#16301e;color:#f2d17a;font:inherit;cursor:pointer">Charakter auswählen ▾</button>
-        <div class="kopf-unter" id="kopfUnter">wird geladen</div>
-      </div>
-      <div class="kopf-aktionen" style="display:flex;align-items:center;gap:6px;flex-shrink:0">
-        <a class="kopf-knopf" id="heimKnopf" href="https://spieltisch-werkzeuge.vercel.app" aria-label="Zur Werkzeugübersicht" title="Zur Werkzeugübersicht" style="display:flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;text-decoration:none;color:inherit" onclick="try{speichern()}catch(e){}">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="m3 10 9-7 9 7"/><path d="M5 9v12h14V9"/><path d="M9 21v-7h6v7"/>
-          </svg>
-        </a>
+      <button id="kopfJaegerWahl" type="button" class="kopf-auswahl" aria-label="Charakter auswählen">Charakter wechseln ▾</button>
+      <a class="kopf-knopf" id="heimKnopf" href="https://spieltisch-werkzeuge.vercel.app" aria-label="Zur Werkzeugübersicht" title="Zur Werkzeugübersicht" onclick="try{speichern()}catch(e){}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v12h14V9"/><path d="M9 21v-7h6v7"/></svg>
+      </a>
       <button class="kopf-knopf" id="undoKnopf" aria-label="Rückgängig" title="Letzten Schritt zurücknehmen">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 8.5h10.5a5.5 5.5 0 0 1 0 11H8"/><path d="M8 4.5 4 8.5l4 4"/>
-        </svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5h10.5a5.5 5.5 0 0 1 0 11H8"/><path d="M8 4.5 4 8.5l4 4"/></svg>
       </button>
-      </div>
     </div>
     <div class="kolumnentitel" id="kolumnentitel"></div>
   </header>
