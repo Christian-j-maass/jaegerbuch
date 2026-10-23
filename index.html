@@ -2220,7 +2220,7 @@ function startProfilWaehlen(id,stufe){
  const key=id+'-'+stufe;
  let c=Buch.charaktere.find(x=>x.id===key);
  if(!c){c=startProfilBauen(id,stufe);if(!c)return;Buch.charaktere.push(c);Buch.zustaende[c.id]=neuerZustand(c);}
- Buch.aktiv=c.id;RueckStapel=[];speichern();blattSchliessen();seiteZeigen('marker');melden(c.name+' · Stufe '+stufe+' gewählt.');
+ Buch.aktiv=c.id;Buch.einstellungen.letzteStufen=Buch.einstellungen.letzteStufen||{};Buch.einstellungen.letzteStufen[id]=stufe;RueckStapel=[];speichern();blattSchliessen();seiteZeigen('marker');melden(c.name+' · Stufe '+stufe+' gewählt.');
 }
 function startAuswahlDialog(){
  let h=blattKopf('Charakter auswählen','Zuerst Jäger wählen, danach Stufe 3, 4 oder 5');
@@ -2232,16 +2232,27 @@ function startAuswahlDialog(){
  h+='<button class="knopf schmal" data-blatt="zu">Schließen</button>';
  blattOeffnen(h);
 }
+let StartStufenEntwurf=null;
 function startStufenDialog(id){
  const p=START_PROFILE.find(x=>x.id===id);if(!p)return;
- let h=blattKopf(p.name+(p.beiname?' „'+p.beiname+'“':''),'Wähle die Spielstufe');
+ const saved=Buch.einstellungen.letzteStufen||{};
+ const old=Buch.charaktere.find(x=>x.id===Buch.aktiv&&x.vorlage===id);
+ const level=[3,4,5].includes(saved[id])?saved[id]:(old&&[3,4,5].includes(old.stufe)?old.stufe:3);
+ StartStufenEntwurf={id,stufe:level};
+ startStufenZeichnen();
+}
+function startStufenZeichnen(){
+ const {id,stufe:wahl}=StartStufenEntwurf;
+ const p=START_PROFILE.find(x=>x.id===id);
+ let h=blattKopf(p.name+(p.beiname?' „'+p.beiname+'“':''),'Schritt 2 von 2 · Spielstufe wählen');
  [3,4,5].forEach(stufe=>{
-  h+='<button class="wahl" data-startprofil="'+p.id+'" data-stufe="'+stufe+'">'+
-  '<span class="wahl-zeichen">○</span><span class="wahl-text"><span class="wahl-titel">Stufe '+stufe+
-  '</span><span class="wahl-unter">Charakter auf Stufe '+stufe+' spielen</span></span></button>';
+  h+='<button class="wahl'+(wahl===stufe?' gewaehlt':'')+'" data-stufenwahl="'+stufe+'" aria-pressed="'+(wahl===stufe)+'">'+
+  '<span class="wahl-zeichen">'+(wahl===stufe?'●':'○')+'</span><span class="wahl-text"><span class="wahl-titel">Stufe '+stufe+
+  '</span><span class="wahl-unter">'+(wahl===stufe?'Ausgewählt':'Zum Auswählen antippen')+'</span></span></button>';
  });
  if(id==='catherine')h+='<div class="hinweisfeld">Die Stufenaufstiege für Caprice sind noch nicht vollständig belegt. Basiswerte bleiben unverändert.</div>';
- h+='<button class="knopf schmal" id="zurueckProfile">Zurück zu den Charakteren</button>';
+ h+='<button class="knopf haupt" id="stufeBestaetigen">Stufe '+wahl+' bestätigen und spielen</button>'+
+ '<button class="knopf schmal" id="zurueckProfile">Zurück zur Charakterauswahl</button>';
  blattOeffnen(h);
 }
 function startCharakterwahl(){
@@ -3957,6 +3968,9 @@ document.addEventListener('click', ev => {
   const profilW=t.closest('[data-profilwahl]');
   if(profilW){startStufenDialog(profilW.dataset.profilwahl);return;}
   if(t.closest('#zurueckProfile')){startAuswahlDialog();return;}
+  const stufenK=t.closest('[data-stufenwahl]');
+  if(stufenK&&StartStufenEntwurf){StartStufenEntwurf.stufe=Number(stufenK.dataset.stufenwahl);startStufenZeichnen();return;}
+  if(t.closest('#stufeBestaetigen')&&StartStufenEntwurf){startProfilWaehlen(StartStufenEntwurf.id,StartStufenEntwurf.stufe);StartStufenEntwurf=null;return;}
   const profilK=t.closest('[data-startprofil]');
   if(profilK){startProfilWaehlen(profilK.dataset.startprofil,Number(profilK.dataset.stufe));return;}
   if (t.closest('#undoKnopf')) { zurueck(); return; }
