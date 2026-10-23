@@ -2170,26 +2170,74 @@ function zeichneKopf() {
   if (!w.dataset.fertig) { w.innerHTML = '<i></i>' + orn('wappen') + '<i></i>'; w.dataset.fertig = '1'; }
 }
 
-function startCharakterwahl() {
-  let h = '<section id="startJaegerWahl" aria-label="Charakter auswählen" style="margin-bottom:18px">';
-  h += '<h2 style="margin:0 0 10px">Wähle deinen Jäger</h2>';
-  h += '<p class="klein" style="margin:0 0 12px">Tippe auf deinen Charakter, um seine Werte und Marker zu öffnen.</p>';
-  h += '<div style="display:grid;gap:9px">';
-  Buch.charaktere.forEach(x => {
-    h += '<button class="wahl' + (x.id === Buch.aktiv ? ' gewaehlt' : '') +
-      '" data-jaeger="' + esc(x.id) + '" aria-pressed="' + (x.id === Buch.aktiv) + '">' +
-      '<span class="wahl-zeichen">' + (x.id === Buch.aktiv ? '●' : '○') + '</span>' +
-      '<span class="wahl-text"><span class="wahl-titel">' + esc(x.name) +
-      (x.beiname ? ' „' + esc(x.beiname) + '“' : '') + '</span>' +
-      '<span class="wahl-unter">Stufe ' + x.stufe + (x.rolle ? ' · ' + esc(x.rolle) : '') +
-      (x.id === Buch.aktiv ? ' · Aktiv' : '') + '</span></span></button>';
-  });
-  h += '</div><div class="knopf-reihe" style="margin-top:12px">' +
-    '<button class="knopf schmal" id="vorlageKnopf">Charaktervorlage wählen</button>' +
-    '<button class="knopf schmal" id="neuKnopf">Eigenen Jäger anlegen</button></div></section>';
-  return h;
-}
 
+/* Vier feste Jägerprofile, unabhängig von bereits gespeicherten Figuren. */
+const START_PROFILE = [
+ {id:'mali',name:'Amalie Schumacher',beiname:'Mali',rolle:'Feldkaplanin'},
+ {id:'catherine',name:'Catherine de Montclair',beiname:'Caprice',rolle:'Dolchkämpferin und Giftkundige'},
+ {id:'hagen',name:'Hagen Theodor von Löwenstein',beiname:'',rolle:'Büchsenmacher und Schütze'},
+ {id:'maximilian',name:'Maximilian Georg Telemann',beiname:'der Steinerne',rolle:'Gardehauptmann und Beschützer'}
+];
+function startProfilBauen(id,stufe) {
+ if(id==='mali') return baueMali(stufe);
+ const c=leererJaeger(); const p=START_PROFILE.find(x=>x.id===id);
+ if(!p) return null;
+ Object.assign(c,{id:id+'-'+stufe,vorlage:id,name:p.name,beiname:p.beiname,rolle:p.rolle,stufe:stufe,
+ quelle:'HeXXen 1733 · Einsteigerset / bereitgestellter Charakterbogen'});
+ const fw=(name,value,weapon=false)=>{const v=(weapon?c.waffen:c.fertigkeiten).find(x=>x.name===name);if(v)v.fw=value;};
+ const w=(name,value)=>{const v=c.waffen.find(x=>x.name===name);if(v){v.besitz=true;v.fw=value;}};
+ const kraft=(name,kurz,ap=0)=>c.kraefte.push({name,abStufe:2,ap,kurz,text:kurz});
+ if(id==='maximilian'){
+   Object.assign(c,{attribute:{kkr:5,ath:3,ges:2,sin:3,wis:4,wil:5},lepMax:18,initiative:5,panzerwert:3,panzerklasse:'schwer',apBasis:3,coupsBasis:3,ideenBasis:5,motivation:'Dominant',geldStart:245,unterhalt:50,ausruestung:[{name:'Schwert'},{name:'Pistole'},{name:'Schild'},{name:'Kürass'},{name:'Gardeuniform'}],spielhinweis:'Beschütze die Gruppe mit Leibgarde und Schildblock. Defensive Espritsterne erzeugen Puffer-Lep.'});
+   fw('Erkennen',2);fw('Land und Leute',2);fw('Redekunst',2);fw('Unempfindlichkeit',stufe===5?2:1);fw('Aufmerksamkeit',1);fw('Muskelspiel',stufe===5?1:0);
+   w('Schwerter',3);w('Pistole',1);w('Schildbenutzung',2);
+   kraft('Hart wie Stahl','Jeder Espritstern bei einer defensiven Reaktion ergibt 1 Puffer-Lep (maximal 10).');
+   kraft('Leibgarde','Einen Gegner, der einen Mitstreiter im Nahkampf angreifen will, kostenlos an dich binden.');
+   kraft('Fortgeschrittene Kriegstaktik','Ideen für taktische Unterstützung oder einen Wiederholungswurf des Anführergegners einsetzen.');
+   kraft('Schwachstelle erkennen','Gegnerische Panzerung einschätzen und Verbündete unterstützen.');
+   kraft('Gegenschlag','Bei erlittenem Schaden durch gebundenen Bandengegner Blutwürfel als freie Reaktion.');
+   if(stufe===5){c.lepMax=19;kraft('Neu formieren','Einmal je Kampf in Ini 0 Coups oder Ideen zwischen Jägern übertragen.');}
+ }else if(id==='hagen'){
+   Object.assign(c,{attribute:{kkr:3,ath:3,ges:5,sin:5,wis:4,wil:2},lepMax:13,initiative:6,panzerwert:0,panzerklasse:'leicht',apBasis:5,coupsBasis:3,ideenBasis:4,motivation:'Wachsam (Initiative +1)',geldStart:195,unterhalt:130,ausruestung:[{name:'Muskete'},{name:'Schwert'},{name:'Schleuder'},{name:'Transportables Laboratorium'}],spielhinweis:'Freistehend mit der Muskete angreifen; Geschosse und Elixiere vorbereiten.'});
+   fw('Fingerfertigkeit',1);fw('Handwerken',2);fw('Erste Hilfe',1);fw('Wissensgebiete',2);fw('Unempfindlichkeit',1);
+   w('Muskete',3);w('Schwerter',0);w('Schleuder',stufe===5?3:2);
+   kraft('Musketen-Meisterschaft','Gezielter Schuss und Kernschuss kosten Ideen.');
+   kraft('Feuerregen','Besonderer Musketenangriff; Details im Originalbogen prüfen.');
+   kraft('Wurfgeschosse herstellen','Brand-, Blitzgeschosse und Wurfgranaten durch Handwerken herstellen.');
+   kraft('Elixiere herstellen','Mit Freizeitaktion Elixiere herstellen.');
+   kraft('Scharfschütze','Verbesserte Fernkampffähigkeiten.');
+   if(stufe===5)kraft('Unscheinbar','Zusätzliche Jägerkraft ab Stufe 5.');
+ }else if(id==='catherine'){
+   Object.assign(c,{attribute:{kkr:3,ath:4,ges:5,sin:3,wis:3,wil:2},lepMax:13,initiative:5,panzerwert:2,panzerklasse:'mittel',apBasis:4,coupsBasis:5,ideenBasis:3,motivation:'Unbeugsam (Coups +1)',geldStart:140,unterhalt:90,ausruestung:[{name:'Dolch'},{name:'Säbel'},{name:'Pistole'},{name:'Lederkoller'},{name:'Transportables Laboratorium'}],spielhinweis:'Giftkundige Dolchkämpferin. Achtung: Stufenaufstiege 3–5 im vorliegenden Caprice-Bogen nicht dokumentiert; die Werte entsprechen vorläufig der Vorlage auf Stufe 2.',aufstiegsnotizen:['Stufenaufstiege 3–5 nicht belegt: Basiswerte unverändert.']});
+   w('Dolche & Messer',2);w('Säbel',2);w('Pistole',1);
+   kraft('Meister der Dolche','Espritsterne beim Dolchangriff für Gift oder Erfolge verwenden.');
+   kraft('Gifte herstellen','Waffengifte mittels Fingerfertigkeit herstellen.');
+   kraft('Teufelsaustreibung','Espritsterne gegen widernatürliche Gegner erzeugen Segnungen.');
+ }
+ return c;
+}
+function startProfilWaehlen(id,stufe){
+ const key=id+'-'+stufe;
+ let c=Buch.charaktere.find(x=>x.id===key);
+ if(!c){c=startProfilBauen(id,stufe);if(!c)return;Buch.charaktere.push(c);Buch.zustaende[c.id]=neuerZustand(c);}
+ Buch.aktiv=c.id;RueckStapel=[];speichern();blattSchliessen();seiteZeigen('marker');melden(c.name+' · Stufe '+stufe+' gewählt.');
+}
+function startAuswahlDialog(){
+ let h=blattKopf('Charakter auswählen','Vier Jäger · Stufe 4 oder 5');
+ START_PROFILE.forEach(p=>{
+  h+='<div style="padding:12px 0;border-bottom:1px solid #776b47"><strong>'+esc(p.name)+(p.beiname?' „'+esc(p.beiname)+'“':'')+'</strong><div class="klein">'+esc(p.rolle)+'</div>'+
+  '<div class="knopf-reihe" style="margin-top:9px"><button class="knopf schmal" data-startprofil="'+p.id+'" data-stufe="4">Stufe 4 wählen</button><button class="knopf schmal" data-startprofil="'+p.id+'" data-stufe="5">Stufe 5 wählen</button></div></div>';
+ });
+ h+='<p class="klein">Hinweis: Für Caprice sind die Aufstiege 3–5 noch nicht belegt; ihre Basiswerte bleiben vorläufig unverändert.</p><button class="knopf schmal" data-blatt="zu">Schließen</button>';
+ blattOeffnen(h);
+}
+function startCharakterwahl(){
+ const c=charakter();
+ let h='<section id="startJaegerWahl" aria-label="Charakter auswählen" style="margin-bottom:18px"><h2 style="margin:0 0 10px">Wähle deinen Jäger</h2>';
+ h+='<button class="knopf haupt" id="startAuswahlKnopf">Vier Charaktere anzeigen<span class="unter">Amalie · Caprice · Hagen · Maximilian</span></button>';
+ if(c)h+='<p class="klein" style="margin:12px 0">Aktiv: <strong>'+esc(c.name)+'</strong> · Stufe '+c.stufe+'</p>';
+ h+='</section>';return h;
+}
 function zeichneMarker() {
   const c = charakter(), z = zustand();
   const apM = apMax(c, z);
@@ -3892,7 +3940,9 @@ document.addEventListener('click', ev => {
   if (b) { ev.stopPropagation(); begriffZeigen(b); return; }
   begriffSchliessen();
 
-  if (t.closest('#kopfJaegerWahl')) { seiteZeigen('marker'); document.querySelector('#startJaegerWahl')?.scrollIntoView({behavior:'smooth',block:'start'}); return; }
+  if (t.closest('#kopfJaegerWahl') || t.closest('#startAuswahlKnopf')) { startAuswahlDialog(); return; }
+  const profilK=t.closest('[data-startprofil]');
+  if(profilK){startProfilWaehlen(profilK.dataset.startprofil,Number(profilK.dataset.stufe));return;}
   if (t.closest('#undoKnopf')) { zurueck(); return; }
   if (t.closest('#modusKopf')) {
     modusSetzen(Buch.einstellungen.modus === 'dunkel' ? 'hell' : 'dunkel');
