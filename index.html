@@ -2256,18 +2256,12 @@ function startStufenZeichnen(){
  blattOeffnen(h);
 }
 function startCharakterwahl(){
- let h='<section id="startJaegerWahl" aria-label="Charakter auswählen" style="margin-bottom:18px">'+
- '<h2 style="margin:0 0 10px">Wähle deinen Jäger</h2>'+
- '<p class="klein">Schritt 1 von 2 · Charakter auswählen. Anschließend Stufe 3, 4 oder 5 festlegen.</p>';
- START_PROFILE.forEach(p=>{
-  const aktiv=charakter()&&charakter().vorlage===p.id;
-  h+='<button class="wahl'+(aktiv?' gewaehlt':'')+'" data-profilwahl="'+p.id+'">'+
-  '<span class="wahl-zeichen">'+(aktiv?'●':'○')+'</span>'+
-  '<span class="wahl-text"><span class="wahl-titel">'+esc(p.name)+
-  (p.beiname?' „'+esc(p.beiname)+'“':'')+'</span>'+
-  '<span class="wahl-unter">'+esc(p.rolle)+(aktiv?' · Aktiver Jäger':'')+'</span></span></button>';
- });
- h+='</section>';return h;
+ const c=charakter();
+ let h='<section id="startJaegerWahl" aria-label="Charakterauswahl" style="margin-bottom:18px">';
+ h+='<button class="knopf haupt" id="startAuswahlKnopf">Charakter auswählen<span class="unter">Vier Jäger · anschließend Stufe 3, 4 oder 5 wählen</span></button>';
+ if(c)h+='<p class="klein" style="margin:10px 0 0">Aktiv: '+esc(c.name)+' · Stufe '+c.stufe+'</p>';
+ h+='</section>';
+ return h;
 }
 function zeichneMarker() {
   const c = charakter(), z = zustand();
