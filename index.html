@@ -1741,10 +1741,8 @@ function neuerZustand(c) {
 }
 
 function zustandErgaenzen(c, z) {
-  if (!Array.isArray(z.buchungen)) z.buchungen = [];
-  if (!z.buchungen.length && c.geldStart) {
-    z.buchungen = [{ t: Date.now(), b: c.geldStart, g: 'Startgeld' }];
-  }
+  if (!Array.isArray(z.buchungen)) z.buchungen = c.geldStart
+    ? [{ t: Date.now(), b: c.geldStart, g: 'Startgeld' }] : [];
   if (typeof z.merkzettel !== 'string') z.merkzettel = '';
   if (!Array.isArray(z.logbuch)) z.logbuch = [];
   return z;
@@ -2170,7 +2168,8 @@ function zeichneKopf() {
     $('#undoKnopf').disabled = true;
   } else {
     $('#kopfName').textContent = c.beiname ? c.name.split(' ')[0] + ' „' + c.beiname + '“' : c.name;
-    const mitte = z.imKampf ? 'Stufe ' + c.stufe + ' · Runde ' + z.runde : 'Stufe ' + c.stufe;
+    const mitte = (z.imKampf ? 'Stufe ' + c.stufe + ' · Runde ' + z.runde : 'Stufe ' + c.stufe) +
+      (c.vorlage==='catherine'?' · Bogen Stufe 2':'');
     $('#kopfUnter').innerHTML =
       orn('raute') + '<span>' + esc(mitte) + '</span>' + orn('raute');
     $('#undoKnopf').disabled = RueckStapel.length === 0;
@@ -2184,11 +2183,12 @@ function zeichneKopf() {
 /* Vier feste Jägerprofile, unabhängig von bereits gespeicherten Figuren. */
 const START_PROFILE = [
  {id:'mali',name:'Amalie Schumacher',beiname:'Mali',rolle:'Feldkaplanin'},
- {id:'catherine',name:'Katharina de Montclair',beiname:'Caprice',rolle:'Dolchkämpferin und Giftkundige'},
+ {id:'catherine',name:'Catherine de Montclair',beiname:'Caprice',rolle:'Dolchkämpferin und Giftkundige'},
  {id:'hagen',name:'Hagen Theodor von Löwenstein',beiname:'',rolle:'Büchsenmacher und Schütze'},
  {id:'maximilian',name:'Maximilian Georg Telemann',beiname:'der Steinerne',rolle:'Gardehauptmann und Beschützer'}
 ];
 function startProfilBauen(id,stufe) {
+ if(!START_PROFILE.some(p=>p.id===id)||![3,4,5].includes(stufe)) return null;
  if(id==='mali') return baueMali(stufe);
  const c=leererJaeger(); const p=START_PROFILE.find(x=>x.id===id);
  if(!p) return null;
@@ -2196,37 +2196,107 @@ function startProfilBauen(id,stufe) {
  quelle:'HeXXen 1733 · Einsteigerset / bereitgestellter Charakterbogen'});
  const fw=(name,value,weapon=false)=>{const v=(weapon?c.waffen:c.fertigkeiten).find(x=>x.name===name);if(v)v.fw=value;};
  const w=(name,value)=>{const v=c.waffen.find(x=>x.name===name);if(v){v.besitz=true;v.fw=value;}};
- const kraft=(name,kurz,ap=0)=>c.kraefte.push({name,abStufe:2,ap,kurz,text:kurz});
+ const kraft=(name,kurz,abStufe=2,ap=0)=>{if(stufe>=abStufe)c.kraefte.push({name,abStufe,ap,kurz,text:''});};
+ w('Fausthieb',0);w('Ausweichen',0);
  if(id==='maximilian'){
    Object.assign(c,{attribute:{kkr:5,ath:3,ges:2,sin:3,wis:4,wil:5},lepMax:18,initiative:5,panzerwert:3,panzerklasse:'schwer',apBasis:3,coupsBasis:3,ideenBasis:5,motivation:'Dominant',geldStart:245,unterhalt:50,ausruestung:[{name:'Schwert'},{name:'Pistole'},{name:'Schild'},{name:'Kürass'},{name:'Gardeuniform'}],spielhinweis:'Beschütze die Gruppe mit Leibgarde und Schildblock. Defensive Espritsterne erzeugen Puffer-Lep.'});
    fw('Erkennen',2);fw('Land und Leute',2);fw('Redekunst',2);fw('Unempfindlichkeit',stufe===5?2:1);fw('Aufmerksamkeit',1);fw('Muskelspiel',stufe===5?1:0);
-   w('Schwerter',3);w('Pistole',1);w('Schildbenutzung',2);
+   w('Schwerter',stufe>=4?3:2);w('Pistole',1);w('Schildbenutzung',2);
+   c.ausruestungHinweis='Gardeuniform: +1 Janus-Bonus beim Parieren und bei Schildbenutzung. Dominant: Nach jeder ausgegebenen Idee einen HeXXenwürfel würfeln; bei Erfolg kehrt die Idee zurück. Rüstkunde (ab Stufe 3) ist im Ideen-Basiswert 5 enthalten.';
    kraft('Hart wie Stahl','Jeder Espritstern bei einer defensiven Reaktion ergibt 1 Puffer-Lep (maximal 10).');
-   kraft('Leibgarde','Einen Gegner, der einen Mitstreiter im Nahkampf angreifen will, kostenlos an dich binden.');
-   kraft('Fortgeschrittene Kriegstaktik','Ideen für taktische Unterstützung oder einen Wiederholungswurf des Anführergegners einsetzen.');
-   kraft('Schwachstelle erkennen','Gegnerische Panzerung einschätzen und Verbündete unterstützen.');
-   kraft('Gegenschlag','Bei erlittenem Schaden durch gebundenen Bandengegner Blutwürfel als freie Reaktion.');
-   if(stufe===5){c.lepMax=19;kraft('Neu formieren','Einmal je Kampf in Ini 0 Coups oder Ideen zwischen Jägern übertragen.');}
+   kraft('Leibgarde','Einen Gegner, der einen Mitstreiter im Nahkampf angreifen will, kostenlos an dich binden. Nicht mehr möglich ab 4 gebundenen Bandengegnern oder 2 Anführern.');
+   kraft('Fortgeschrittene Kriegstaktik','Auch überrascht sind Kräfte und Verbrauchsmittel zu Kampfstart möglich. Nach dem Angriffswurf eines Mitstreiters 1 Idee: seine Espritsterne werden Erfolge. Nach einem Anführer-Angriffswurf 1 Idee: Wurf wiederholen lassen, höchstens einmal je Angriff.');
+   kraft('Schwachstelle erkennen','Zu Kampfbeginn und in Ini 0 einen Anführer einschätzen: Pw erfahren und +1 auf Angriffe gegen ihn. Vor dem Angriff eines Mitstreiters 1 Idee ausgeben: 2 Pw ignorieren. Rüstkunde erhöht die Basis-Ideen einmalig um 1.',3);
+   kraft('Gegenschlag','Nach Schaden durch einen gebundenen Bandengegner, dessen Angriff du nicht abgewehrt hast: frei einen Blutwürfel werfen. Ab seiner Bandenstufe an Blutstropfen ist er besiegt.',4);
+   if(stufe===5){c.lepMax=19;kraft('Neu formieren','Einmal pro Kampf in Ini 0 kostenlos: Jeder Jäger darf bis zu 3 Coups oder bis zu 3 Ideen abgeben. Ein Empfänger darf insgesamt höchstens 5 Coups und 5 Ideen erhalten; Überschüsse über die Basis verfallen am Kampfende.',5);}
+   c.aufstiegsnotizen=['Stufe 3: Wil 5, Lep 18, Land und Leute 2, Aufmerksamkeit 1; Schwachstelle erkennen und +1 Basis-Idee.'];
+   if(stufe>=4)c.aufstiegsnotizen.push('Stufe 4: Schwerter 3; Gegenschlag.');
+   if(stufe>=5)c.aufstiegsnotizen.push('Stufe 5: Unempfindlichkeit 2, Muskelspiel 1, Lep 19; Neu formieren.');
  }else if(id==='hagen'){
-   Object.assign(c,{attribute:{kkr:3,ath:3,ges:5,sin:5,wis:4,wil:2},lepMax:13,initiative:6,panzerwert:0,panzerklasse:'leicht',apBasis:5,coupsBasis:3,ideenBasis:4,motivation:'Wachsam (Initiative +1)',geldStart:195,unterhalt:130,ausruestung:[{name:'Muskete'},{name:'Schwert'},{name:'Schleuder'},{name:'Transportables Laboratorium'}],spielhinweis:'Freistehend mit der Muskete angreifen; Geschosse und Elixiere vorbereiten.'});
+   Object.assign(c,{attribute:{kkr:3,ath:3,ges:5,sin:5,wis:4,wil:2},lepMax:13,initiative:11,panzerwert:1,panzerklasse:'leicht',apBasis:5,coupsBasis:3,ideenBasis:4,motivation:'Wachsam (Initiative +1)',geldStart:195,unterhalt:130,ausruestung:[{name:'Muskete'},{name:'Schwert'},{name:'Schleuder'},{name:'Transportables Laboratorium'}],spielhinweis:'Freistehend mit der Muskete angreifen; Geschosse und Elixiere vorbereiten.'});
    fw('Fingerfertigkeit',1);fw('Handwerken',2);fw('Erste Hilfe',1);fw('Wissensgebiete',2);fw('Unempfindlichkeit',1);
-   w('Muskete',3);w('Schwerter',0);w('Schleuder',stufe===5?3:2);
-   kraft('Musketen-Meisterschaft','Gezielter Schuss und Kernschuss kosten Ideen.');
-   kraft('Feuerregen','Besonderer Musketenangriff; Details im Originalbogen prüfen.');
-   kraft('Wurfgeschosse herstellen','Brand-, Blitzgeschosse und Wurfgranaten durch Handwerken herstellen.');
-   kraft('Elixiere herstellen','Mit Freizeitaktion Elixiere herstellen.');
-   kraft('Scharfschütze','Verbesserte Fernkampffähigkeiten.');
-   if(stufe===5)kraft('Unscheinbar','Zusätzliche Jägerkraft ab Stufe 5.');
+   w('Muskete',stufe>=4?3:2);w('Schwerter',2);w('Schleuder',stufe===5?3:2);
+   kraft('Musketen-Meisterschaft','Vor einem Musketenangriff 1 Idee: Entweder 2 Pw ignorieren oder +4 Janus-Bonus. Höchstens 1 Idee pro Angriff.');
+   kraft('Feuerregen','Freistehend 3 Ap für einen Musketenwurf ausgeben: kein Schaden; je 1/2/3 Erfolge einen freistehenden Gegner der Bande 1/2/3 entfernen. Aufteilung ist möglich.',2,3);
+   kraft('Wurfgeschosse herstellen','Wurfgeschosse mit der Schleuder erhalten +2 Janus-Bonus. Als Freizeitaktion mit Handwerken Brandgeschosse, Blitzgeschosse oder Wurfgranaten herstellen.');
+   kraft('Elixiere herstellen','Analyse mit Labor und Wissensgebiete. Herstellung als Freizeitaktion: je Erfolg 1 Coup-, Talent- oder Heil-Elixier. Durch die Freischaltung entstehen noch keine Vorräte.',3);
+   kraft('Scharfschütze','Bei Muskete und Pistole kann jeder Espritstern als Erfolg zählen; danach steht er für keine andere Wirkung zur Verfügung.',4);
+   if(stufe===5)kraft('Unscheinbar','Bei einer defensiven Reaktion jeden Espritstern für einen zusätzlichen Erfolg oder zum Lösen von einem gebundenen Gegner nach dem Angriff verwenden.',5);
+   c.ausruestung.push({name:'Handwerkerkleidung',text:'+2 Janus-Bonus auf Handwerken.'},{name:'Brandgeschosse',text:'3 Stück zu Spielbeginn'},{name:'Blitzgeschosse',text:'3 Stück zu Spielbeginn'},{name:'Wurfgranaten',text:'3 Stück zu Spielbeginn'});
+   c.aufstiegsnotizen=['Stufe 3: Ges 5, Initiative 11, Erste Hilfe 1, Wissensgebiete 2; Elixiere herstellen (noch keine Elixiere im Besitz).'];
+   if(stufe>=4)c.aufstiegsnotizen.push('Stufe 4: Muskete 3; Scharfschütze.');
+   if(stufe>=5)c.aufstiegsnotizen.push('Stufe 5: Schleuder 3; Unscheinbar.');
  }else if(id==='catherine'){
-   Object.assign(c,{attribute:{kkr:3,ath:4,ges:5,sin:3,wis:3,wil:2},lepMax:13,initiative:5,panzerwert:2,panzerklasse:'mittel',apBasis:4,coupsBasis:5,ideenBasis:3,motivation:'Unbeugsam (Coups +1)',geldStart:140,unterhalt:90,ausruestung:[{name:'Dolch'},{name:'Säbel'},{name:'Pistole'},{name:'Lederkoller'},{name:'Transportables Laboratorium'}],spielhinweis:'Giftkundige Dolchkämpferin. Achtung: Stufenaufstiege 3–5 im vorliegenden Caprice-Bogen nicht dokumentiert; die Werte entsprechen vorläufig der Vorlage auf Stufe 2.',aufstiegsnotizen:['Stufenaufstiege 3–5 nicht belegt: Basiswerte unverändert.']});
-   w('Dolche & Messer',2);w('Säbel',2);w('Pistole',1);
-   kraft('Meister der Dolche','Espritsterne beim Dolchangriff für Gift oder Erfolge verwenden.');
-   kraft('Gifte herstellen','Waffengifte mittels Fingerfertigkeit herstellen.');
-   kraft('Teufelsaustreibung','Espritsterne gegen widernatürliche Gegner erzeugen Segnungen.');
+   Object.assign(c,{attribute:{kkr:3,ath:4,ges:5,sin:4,wis:2,wil:3},lepMax:13,initiative:9,panzerwert:2,panzerklasse:'mittel',apBasis:4,coupsBasis:5,ideenBasis:2,motivation:'Unbeugsam (Coups +1)',geldStart:90,unterhalt:140,ausruestung:[{name:'Dolch'},{name:'Säbel'},{name:'Pistole'},{name:'Lederkoller'},{name:'Transportables Laboratorium'}],spielhinweis:'Giftkundige Dolchkämpferin. Achtung: Stufenaufstiege 3–5 im vorliegenden Caprice-Bogen nicht dokumentiert; die Werte entsprechen vorläufig der Vorlage auf Stufe 2.',aufstiegsnotizen:['Stufenaufstiege 3–5 nicht belegt: Basiswerte unverändert.']});
+   capriceBogenErgaenzen(c);
+   kraft('Meister der Dolche','Beim Dolchangriff je Espritstern Gift kostenlos anbringen (Gift wird verbraucht) oder einen Erfolg erhalten. Beide Verwendungen sind kombinierbar.');
+   kraft('Gifte herstellen','Mit Aufmerksamkeit Gifte analysieren; mit Fingerfertigkeit einfache und effektive Waffengifte sowie Feuergifte herstellen.');
+   kraft('Teufelsaustreibung','Pro Espritstern bei Angriffen gegen widernatürliche Wesen eine Segnung erhalten, maximal 5.');
  }
+ c.profilRegelstand=PROFIL_REGELSTAND;
  return c;
 }
+const PROFIL_REGELSTAND = '2026-10-23.1';
+
+/* Caprice: Fertigkeiten und Waffenschäden aus dem eigenen Bogen übernehmen. */
+function capriceBogenErgaenzen(c) {
+ c.fertigkeiten=[
+  ['Alchemistisches Wissen',1,'wis'],['Akrobatik',2,'ath'],['Aufmerksamkeit',0,'sin'],
+  ['Erste Hilfe',0,'wis'],['Fingerfertigkeit',2,'ges'],['Geistesstärke',0,'wil'],
+  ['Handwerken',0,'ges'],['Heimlichkeit',1,'ath'],['Muskelspiel',0,'kkr'],
+  ['Mystisches Wissen',1,'wis'],['Praktisches Wissen',1,'wis'],['Recherche',0,'sin'],
+  ['Redekunst',0,'wil'],['Seefahrt',0,'wis'],['Unempfindlichkeit',0,'kkr'],
+  ['Land und Leute',1,'wis']
+ ].map(([name,fw,attr])=>({name,fw,attr}));
+ c.waffen=[
+  ['Fausthieb',0,1,0,'ath','nah',true],
+  ['Dolche & Messer',1,1,2,'ges','nah',true,'Dolch'],
+  ['Fechtwaffen',2,1,0,'ath','nah',false],
+  ['Schwerter',4,2,0,'kkr','nah',true,'Säbel'],
+  ['Schlagwaffen',5,2,0,'kkr','nah',false],
+  ['Stangenwaffen',8,3,0,'kkr','nah',false],
+  ['Wurfwaffen',1,2,0,'ges','fern',false],
+  ['Pistole',3,2,2,'sin','fern',true],
+  ['Armbrüste',5,2,0,'sin','fern',false],
+  ['Muskete',9,3,0,'sin','fern',false],
+  ['Ausweichen',null,1,0,'ath','verteidigung',true]
+ ].map(([name,schaden,ap,fw,attr,art,besitz,gegenstand])=>({name,schaden,ap,fw,attr,art,besitz,gegenstand:gegenstand||''}));
+ c.ausruestung.push({name:'Reisekleidung',text:'Lederkoller: Pw 2, 4 Ap; Lep 13 wie eingetragen.'},
+  {name:'Waffengifte',text:'Einfache, effektive und Feuergifte; vorhandene Stückzahlen im Bogen nicht eindeutig markiert.'});
+ c.quelle='Caprice_2.pdf · Seiten 1–2 · dokumentierte Jägerstufe 2';
+ c.ausruestungHinweis='Der Säbel steht im Original unter Schwerter: Fw 0, Schaden 4. Coups: Ath 4 + Unbeugsam 1 = 5 (aktueller Bogenwert 5; separates Basisfeld 4). Giftbestände bitte am Spieltisch abgleichen.';
+}
+
+function profilKorrekturMoeglich(c) {
+ return c && c.vorlage!=='mali' && START_PROFILE.some(p=>p.id===c.vorlage) &&
+  [3,4,5].includes(c.stufe) && c.profilRegelstand!==PROFIL_REGELSTAND;
+}
+
+function profilKorrekturHinweis(c) {
+ if(!profilKorrekturMoeglich(c))return '';
+ return '<div class="hinweisfeld blut"><b>Gespeicherter Bogen vor der Regelkorrektur.</b> '+
+  'Neue Originalwerte sind verfügbar. Ein Charakterwechsel ändert deinen gespeicherten Bogen nicht.'+
+  '<button class="knopf" id="profilKorrigieren">Korrigierte Bogenwerte übernehmen'+
+  '<span class="unter">Spielstand bleibt erhalten · eigene Bogenänderungen werden ersetzt</span></button></div>';
+}
+
+function profilKorrigieren() {
+ const alt=charakter();
+ if(!profilKorrekturMoeglich(alt))return false;
+ if(!confirm('Originalwerte für '+alt.name+' auf Spielstufe '+alt.stufe+' übernehmen? '+
+  'Eigene Änderungen an Bogenwerten werden ersetzt. Aktuelle Marker, Lebenspunkte, Kasse und Notizen bleiben unverändert. '+
+  'Bei Caprice bleibt deshalb auch das bisher gebuchte Startgeld erhalten; eine Geldkorrektur bei Bedarf separat buchen.'))return false;
+ const neu=startProfilBauen(alt.vorlage,alt.stufe);
+ neu.id=alt.id;
+ Object.assign(alt,neu);
+ RueckStapel=[];
+ speichern();zeichnen();
+ melden('Bogenwerte korrigiert. Dein Spielstand ist unverändert.');
+ return true;
+}
+
 function startProfilWaehlen(id,stufe){
+ if(!START_PROFILE.some(p=>p.id===id)||![3,4,5].includes(stufe))return;
  const key=id+'-'+stufe;
  let c=Buch.charaktere.find(x=>x.id===key);
  if(!c){c=startProfilBauen(id,stufe);if(!c)return;Buch.charaktere.push(c);Buch.zustaende[c.id]=neuerZustand(c);}
@@ -2260,7 +2330,7 @@ function startStufenZeichnen(){
   '<span class="wahl-zeichen">'+(wahl===stufe?'●':'○')+'</span><span class="wahl-text"><span class="wahl-titel">Stufe '+stufe+
   '</span><span class="wahl-unter">'+(wahl===stufe?'Ausgewählt':'Zum Auswählen antippen')+'</span></span></button>';
  });
- if(id==='catherine')h+='<div class="hinweisfeld">Die Stufenaufstiege für Caprice sind noch nicht vollständig belegt. Basiswerte bleiben unverändert.</div>';
+ if(id==='catherine')h+='<div class="hinweisfeld">Caprice: Nur der Bogen auf Stufe 2 ist belegt. Die Spielstufen 3–5 übernehmen dieselben Werte und Kräfte, ohne zusätzliche Aufstiege.</div>';
  h+='<button class="knopf haupt" id="stufeBestaetigen">Stufe '+wahl+' bestätigen und spielen</button>'+
  '<button class="knopf schmal" id="zurueckProfile">Zurück zur Charakterauswahl</button>';
  blattOeffnen(h);
@@ -2615,6 +2685,13 @@ function zeichneBuch() {
       html += karte({ nr: nr(), titel: 'Jägerkräfte', inhalt: k });
     }
 
+    if (c.ausruestung && c.ausruestung.length) {
+      let aus = c.ausruestung.map(a => '<p class="klein"><b>' + esc(a.name) + '</b>' +
+        (a.text ? ' · ' + esc(a.text) : '') + '</p>').join('');
+      if (c.ausruestungHinweis) aus += '<div class="hinweisfeld">' + betont(c.ausruestungHinweis) + '</div>';
+      html += karte({ nr: nr(), titel: 'Ausrüstung und Bogenhinweise', inhalt: aus });
+    }
+
     html += karte({ nr: nr(), titel: 'Kasse',
                     rechts: c.unterhalt ? 'Unterhalt ' + geldText(c.unterhalt) : null,
                     inhalt: kasseInhalt(c, z) });
@@ -2814,6 +2891,7 @@ function zeichnen() {
       el.innerHTML = (!c && id !== 'buch' && id !== 'marker')
         ? karte({ inhalt: '<div class="leerhinweis">Noch kein Jäger gewählt.<br>Geh auf <b>Buch</b> und lade eine Vorlage.</div>' })
         : fn();
+      el.innerHTML = profilKorrekturHinweis(c) + el.innerHTML;
     }
   }
   $$('.reiter-knopf').forEach(k => k.classList.toggle('aktiv', k.dataset.seite === AktiveSeite));
@@ -3978,6 +4056,7 @@ document.addEventListener('click', ev => {
   const profilK=t.closest('[data-startprofil]');
   if(profilK){startProfilWaehlen(profilK.dataset.startprofil,Number(profilK.dataset.stufe));return;}
   if (t.closest('#undoKnopf')) { zurueck(); return; }
+  if (t.closest('#profilKorrigieren')) { profilKorrigieren(); return; }
   if (t.closest('#modusKopf')) {
     modusSetzen(Buch.einstellungen.modus === 'dunkel' ? 'hell' : 'dunkel');
     zeichnen(); return;
@@ -4198,14 +4277,10 @@ function editorFelderLesen() {
   if (pk) c.apBasis = pk.ap;
 }
 
-let MerkUhr = null;
 document.addEventListener('input', ev => {
   if (ev.target.id === 'merkzettel') {
-    clearTimeout(MerkUhr);
-    MerkUhr = setTimeout(() => {
-      const z = zustand();
-      if (z) { z.merkzettel = ev.target.value; speichern(); }
-    }, 400);
+    const z = zustand();
+    if (z) { z.merkzettel = ev.target.value; speichern(); }
   }
 });
 
