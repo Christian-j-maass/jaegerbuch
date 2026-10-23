@@ -1023,7 +1023,7 @@ html[data-drucken] #druckbogen { display: block; }
       <div class="kopf-mitte">
         <div class="kopf-wappen" id="kopfWappen"></div>
         <div class="kopf-name" id="kopfName">Jägerbuch</div>
-        <button id="kopfJaegerWahl" type="button" style="margin:8px auto 0;padding:10px 16px;min-height:44px;border:1px solid #c9a227;border-radius:8px;background:#16301e;color:#f2d17a;font:inherit;cursor:pointer">Charakter wechseln ▾</button>
+        <button id="kopfJaegerWahl" type="button" style="margin:8px auto 0;padding:10px 16px;min-height:44px;border:1px solid #c9a227;border-radius:8px;background:#16301e;color:#f2d17a;font:inherit;cursor:pointer">Charakter auswählen ▾</button>
         <div class="kopf-unter" id="kopfUnter">wird geladen</div>
       </div>
       <button class="kopf-knopf" id="undoKnopf" aria-label="Rückgängig" title="Letzten Schritt zurücknehmen">
@@ -2255,18 +2255,11 @@ function startStufenZeichnen(){
  '<button class="knopf schmal" id="zurueckProfile">Zurück zur Charakterauswahl</button>';
  blattOeffnen(h);
 }
-function startCharakterwahl(){
- const c=charakter();
- let h='<section id="startJaegerWahl" aria-label="Charakterauswahl" style="margin-bottom:18px">';
- h+='<button class="knopf haupt" id="startAuswahlKnopf">Charakter auswählen<span class="unter">Vier Jäger · anschließend Stufe 3, 4 oder 5 wählen</span></button>';
- if(c)h+='<p class="klein" style="margin:10px 0 0">Aktiv: '+esc(c.name)+' · Stufe '+c.stufe+'</p>';
- h+='</section>';
- return h;
-}
+function startCharakterwahl(){return '';}
 function zeichneMarker() {
   const c = charakter(), z = zustand();
   const apM = apMax(c, z);
-  let html = startCharakterwahl();
+  let html = '';
 
   let inhalt = kartusche(z.ap, 'von ' + apM +
       (z.einfluss.laehmung ? ' · Lähmung nimmt ' + z.einfluss.laehmung : ''), 'ap');
