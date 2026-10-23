@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5">
-<title>Jägerbuch — der Zähler für den Spieltisch</title>
+<title>Jägerbuch · Vier Jäger · Stufen 3–5 · Review 20261023</title>
 <meta name="description" content="Zähler für HeXXen 1733: Ressourcen, Lebenspunkte, Handlungen und anhaltende Einflüsse. Läuft offline, ohne Anmeldung, ohne Server.">
 <meta name="robots" content="noindex, nofollow, noarchive">
 <link rel="manifest" href="manifest.webmanifest">
@@ -2223,7 +2223,7 @@ function startProfilWaehlen(id,stufe){
  Buch.aktiv=c.id;Buch.einstellungen.letzteStufen=Buch.einstellungen.letzteStufen||{};Buch.einstellungen.letzteStufen[id]=stufe;RueckStapel=[];speichern();blattSchliessen();seiteZeigen('marker');melden(c.name+' · Stufe '+stufe+' gewählt.');
 }
 function startAuswahlDialog(){
- let h=blattKopf('Charakter auswählen','Zuerst Jäger wählen, danach Stufe 3, 4 oder 5');
+ let h=blattKopf('Charakter auswählen','Schritt 1 von 2 · Vier Charaktere');
  START_PROFILE.forEach(p=>{
   h+='<button class="wahl" data-profilwahl="'+p.id+'"><span class="wahl-zeichen">○</span>'+
   '<span class="wahl-text"><span class="wahl-titel">'+esc(p.name)+(p.beiname?' „'+esc(p.beiname)+'“':'')+
@@ -2256,10 +2256,17 @@ function startStufenZeichnen(){
  blattOeffnen(h);
 }
 function startCharakterwahl(){
- const c=charakter();
- let h='<section id="startJaegerWahl" aria-label="Charakter auswählen" style="margin-bottom:18px"><h2 style="margin:0 0 10px">Wähle deinen Jäger</h2>';
- h+='<button class="knopf haupt" id="startAuswahlKnopf">Vier Charaktere anzeigen<span class="unter">Amalie · Caprice · Hagen · Maximilian</span></button>';
- if(c)h+='<p class="klein" style="margin:12px 0">Aktiv: <strong>'+esc(c.name)+'</strong> · Stufe '+c.stufe+'</p>';
+ let h='<section id="startJaegerWahl" aria-label="Charakter auswählen" style="margin-bottom:18px">'+
+ '<h2 style="margin:0 0 10px">Wähle deinen Jäger</h2>'+
+ '<p class="klein">Schritt 1 von 2 · Charakter auswählen. Anschließend Stufe 3, 4 oder 5 festlegen.</p>';
+ START_PROFILE.forEach(p=>{
+  const aktiv=charakter()&&charakter().vorlage===p.id;
+  h+='<button class="wahl'+(aktiv?' gewaehlt':'')+'" data-profilwahl="'+p.id+'">'+
+  '<span class="wahl-zeichen">'+(aktiv?'●':'○')+'</span>'+
+  '<span class="wahl-text"><span class="wahl-titel">'+esc(p.name)+
+  (p.beiname?' „'+esc(p.beiname)+'“':'')+'</span>'+
+  '<span class="wahl-unter">'+esc(p.rolle)+(aktiv?' · Aktiver Jäger':'')+'</span></span></button>';
+ });
  h+='</section>';return h;
 }
 function zeichneMarker() {
