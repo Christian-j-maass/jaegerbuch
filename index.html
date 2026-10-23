@@ -2255,7 +2255,7 @@ function startStufenZeichnen(){
  '<button class="knopf schmal" id="zurueckProfile">Zurück zur Charakterauswahl</button>';
  blattOeffnen(h);
 }
-function startCharakterwahl(){return '';}
+function startCharakterwahl(){return '';} /* UI 2026-10-23: Auswahl ausschließlich über #kopfJaegerWahl; kein zweiter Knopf im Marker-Reiter. */
 function zeichneMarker() {
   const c = charakter(), z = zustand();
   const apM = apMax(c, z);
