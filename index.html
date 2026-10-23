@@ -2174,7 +2174,7 @@ function zeichneKopf() {
 /* Vier feste Jägerprofile, unabhängig von bereits gespeicherten Figuren. */
 const START_PROFILE = [
  {id:'mali',name:'Amalie Schumacher',beiname:'Mali',rolle:'Feldkaplanin'},
- {id:'catherine',name:'Catherine de Montclair',beiname:'Caprice',rolle:'Dolchkämpferin und Giftkundige'},
+ {id:'catherine',name:'Katharina de Montclair',beiname:'Caprice',rolle:'Dolchkämpferin und Giftkundige'},
  {id:'hagen',name:'Hagen Theodor von Löwenstein',beiname:'',rolle:'Büchsenmacher und Schütze'},
  {id:'maximilian',name:'Maximilian Georg Telemann',beiname:'der Steinerne',rolle:'Gardehauptmann und Beschützer'}
 ];
@@ -2223,12 +2223,25 @@ function startProfilWaehlen(id,stufe){
  Buch.aktiv=c.id;RueckStapel=[];speichern();blattSchliessen();seiteZeigen('marker');melden(c.name+' · Stufe '+stufe+' gewählt.');
 }
 function startAuswahlDialog(){
- let h=blattKopf('Charakter auswählen','Vier Jäger · Stufe 4 oder 5');
+ let h=blattKopf('Charakter auswählen','Zuerst Jäger wählen, danach Stufe 3, 4 oder 5');
  START_PROFILE.forEach(p=>{
-  h+='<div style="padding:12px 0;border-bottom:1px solid #776b47"><strong>'+esc(p.name)+(p.beiname?' „'+esc(p.beiname)+'“':'')+'</strong><div class="klein">'+esc(p.rolle)+'</div>'+
-  '<div class="knopf-reihe" style="margin-top:9px"><button class="knopf schmal" data-startprofil="'+p.id+'" data-stufe="4">Stufe 4 wählen</button><button class="knopf schmal" data-startprofil="'+p.id+'" data-stufe="5">Stufe 5 wählen</button></div></div>';
+  h+='<button class="wahl" data-profilwahl="'+p.id+'"><span class="wahl-zeichen">○</span>'+
+  '<span class="wahl-text"><span class="wahl-titel">'+esc(p.name)+(p.beiname?' „'+esc(p.beiname)+'“':'')+
+  '</span><span class="wahl-unter">'+esc(p.rolle)+'</span></span></button>';
  });
- h+='<p class="klein">Hinweis: Für Caprice sind die Aufstiege 3–5 noch nicht belegt; ihre Basiswerte bleiben vorläufig unverändert.</p><button class="knopf schmal" data-blatt="zu">Schließen</button>';
+ h+='<button class="knopf schmal" data-blatt="zu">Schließen</button>';
+ blattOeffnen(h);
+}
+function startStufenDialog(id){
+ const p=START_PROFILE.find(x=>x.id===id);if(!p)return;
+ let h=blattKopf(p.name+(p.beiname?' „'+p.beiname+'“':''),'Wähle die Spielstufe');
+ [3,4,5].forEach(stufe=>{
+  h+='<button class="wahl" data-startprofil="'+p.id+'" data-stufe="'+stufe+'">'+
+  '<span class="wahl-zeichen">○</span><span class="wahl-text"><span class="wahl-titel">Stufe '+stufe+
+  '</span><span class="wahl-unter">Charakter auf Stufe '+stufe+' spielen</span></span></button>';
+ });
+ if(id==='catherine')h+='<div class="hinweisfeld">Die Stufenaufstiege für Caprice sind noch nicht vollständig belegt. Basiswerte bleiben unverändert.</div>';
+ h+='<button class="knopf schmal" id="zurueckProfile">Zurück zu den Charakteren</button>';
  blattOeffnen(h);
 }
 function startCharakterwahl(){
@@ -3941,6 +3954,9 @@ document.addEventListener('click', ev => {
   begriffSchliessen();
 
   if (t.closest('#kopfJaegerWahl') || t.closest('#startAuswahlKnopf')) { startAuswahlDialog(); return; }
+  const profilW=t.closest('[data-profilwahl]');
+  if(profilW){startStufenDialog(profilW.dataset.profilwahl);return;}
+  if(t.closest('#zurueckProfile')){startAuswahlDialog();return;}
   const profilK=t.closest('[data-startprofil]');
   if(profilK){startProfilWaehlen(profilK.dataset.startprofil,Number(profilK.dataset.stufe));return;}
   if (t.closest('#undoKnopf')) { zurueck(); return; }
