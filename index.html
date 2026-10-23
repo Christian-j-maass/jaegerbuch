@@ -1026,11 +1026,18 @@ html[data-drucken] #druckbogen { display: block; }
         <button id="kopfJaegerWahl" type="button" style="margin:8px auto 0;padding:10px 16px;min-height:44px;border:1px solid #c9a227;border-radius:8px;background:#16301e;color:#f2d17a;font:inherit;cursor:pointer">Charakter auswählen ▾</button>
         <div class="kopf-unter" id="kopfUnter">wird geladen</div>
       </div>
+      <div class="kopf-aktionen" style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+        <a class="kopf-knopf" id="heimKnopf" href="https://spieltisch-werkzeuge.vercel.app" aria-label="Zur Werkzeugübersicht" title="Zur Werkzeugübersicht" style="display:flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;text-decoration:none;color:inherit" onclick="try{speichern()}catch(e){}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m3 10 9-7 9 7"/><path d="M5 9v12h14V9"/><path d="M9 21v-7h6v7"/>
+          </svg>
+        </a>
       <button class="kopf-knopf" id="undoKnopf" aria-label="Rückgängig" title="Letzten Schritt zurücknehmen">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <path d="M4 8.5h10.5a5.5 5.5 0 0 1 0 11H8"/><path d="M8 4.5 4 8.5l4 4"/>
         </svg>
       </button>
+      </div>
     </div>
     <div class="kolumnentitel" id="kolumnentitel"></div>
   </header>
