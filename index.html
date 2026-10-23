@@ -172,6 +172,8 @@ button { cursor: pointer; border: none; background: none; }
 .kopf-werkzeugleiste { display:grid; grid-template-columns:46px minmax(0,1fr) 46px 46px; align-items:center; gap:6px; }
 .kopf-werkzeugleiste .kopf-knopf { width:46px; height:46px; display:grid; place-items:center; box-sizing:border-box; }
 .kopf-werkzeugleiste #heimKnopf { text-decoration:none; color:var(--band-gold); }
+.kopf-kapital { font-size:1.2em; font-weight:700; line-height:1; }
+.kopf-kapit { font-size:.78em; font-weight:650; letter-spacing:.055em; }
 .kopf-auswahl { width:100%; min-width:0; height:46px; padding:0 4px; border:1px solid #c9a227; border-radius:6px; background:#16301e; color:#f2d17a; font:inherit; font-size:clamp(15px,4vw,20px); font-variant-caps:small-caps; letter-spacing:.055em; white-space:nowrap; cursor:pointer; }
 @media (max-width:360px) { .kopf-werkzeugleiste {grid-template-columns:44px minmax(0,1fr) 44px 44px;gap:4px;} .kopf-werkzeugleiste .kopf-knopf{width:44px;height:46px;} .kopf-auswahl{font-size:15px;} }
 
@@ -1032,7 +1034,7 @@ html[data-drucken] #druckbogen { display: block; }
       <button class="kopf-knopf" id="modusKopf" aria-label="Darstellung umschalten" title="Pergament oder Kerzenschein">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.6A8.6 8.6 0 0 1 9.4 3.5a8.6 8.6 0 1 0 11.1 11.1z"/></svg>
       </button>
-      <button id="kopfJaegerWahl" type="button" class="kopf-auswahl" aria-label="Charakter auswählen">Charakter wechseln ▾</button>
+      <button id="kopfJaegerWahl" type="button" class="kopf-auswahl" aria-label="Charakter wechseln"><span class="kopf-kapital">C</span><span class="kopf-kapit">HRAKTER WECHSELN</span><span aria-hidden="true"> ▾</span></button>
       <a class="kopf-knopf" id="heimKnopf" href="https://spieltisch-werkzeuge.vercel.app" aria-label="Zur Werkzeugübersicht" title="Zur Werkzeugübersicht" onclick="try{speichern()}catch(e){}">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9v12h14V9"/><path d="M9 21v-7h6v7"/></svg>
       </a>
